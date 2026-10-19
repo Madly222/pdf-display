@@ -1,4 +1,3 @@
-"""Общие части: настройки, база данных, пароли. Используется сервисом и CLI."""
 import hashlib
 import hmac
 import os
@@ -60,7 +59,6 @@ def now() -> int:
 
 
 def connect() -> sqlite3.Connection:
-    # isolation_level=None: автокоммит, транзакции открываем явно через transaction().
     conn = sqlite3.connect(DB_PATH, timeout=30, isolation_level=None, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")

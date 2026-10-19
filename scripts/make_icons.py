@@ -1,8 +1,3 @@
-"""Рисует favicon.ico (16/32/48) и apple-touch-icon.png (180) — та же картинка, что favicon.svg.
-
-Без внешних библиотек: фигуры в координатах 64x64, сглаживание суперсэмплингом.
-Запуск: python3 make_icons.py <каталог для результата>
-"""
 import struct
 import sys
 import zlib
@@ -22,7 +17,6 @@ def in_round_rect(x, y, x0, y0, x1, y1, r):
 
 
 def color_at(x, y, rounded=True):
-    """Цвет точки (x, y) в системе 64x64 или None, если прозрачно."""
     if rounded and not in_round_rect(x, y, 0, 0, 64, 64, 14):
         return None
     in_page = 17 <= x <= 48 and 12 <= y <= 53 and x - y <= 25
@@ -39,7 +33,7 @@ def color_at(x, y, rounded=True):
 def render(size, ss=4, rounded=True):
     rows = []
     for py in range(size):
-        row = bytearray([0])  # фильтр строки PNG: None
+        row = bytearray([0])
         for px in range(size):
             acc = [0, 0, 0, 0]
             for sy in range(ss):
@@ -61,7 +55,6 @@ def png(size, raw):
 
 
 def ico(images):
-    """ICO с PNG внутри (поддерживается всеми современными браузерами)."""
     out = struct.pack("<HHH", 0, 1, len(images))
     offset = 6 + 16 * len(images)
     for size, data in images:
@@ -74,7 +67,6 @@ def main():
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     (out / "favicon.ico").write_bytes(ico([(s, render(s)) for s in (16, 32, 48)]))
-    # iOS сам скругляет углы, а прозрачные углы закрашивает чёрным — поэтому без скругления.
     (out / "apple-touch-icon.png").write_bytes(render(180, ss=2, rounded=False))
 
 

@@ -1,9 +1,3 @@
-"""PDF Display — встраиваемый просмотр PDF для сайтов клиентов.
-
-Папка = клиент: свои разрешённые домены и лимит места.
-Файл получает постоянную ссылку /v/<id>, которую вставляют в <iframe>.
-Сам PDF отдаёт nginx (X-Accel-Redirect), приложение только проверяет доступ.
-"""
 import hashlib
 import hmac
 import html
@@ -32,7 +26,6 @@ SESSION_TTL = 30 * 24 * 3600
 COOKIE = "pd_session"
 ID_ALPHABET = string.ascii_lowercase + string.digits
 DOMAIN_RE = re.compile(r"^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]{2,63}$")
-# Хэш-пустышка: проверяем его при неизвестном логине, чтобы время ответа не выдавало, есть ли такой пользователь.
 DUMMY_HASH = hash_password(secrets.token_hex(16))
 
 
@@ -54,7 +47,6 @@ def get_db():
         conn.close()
 
 
-# ---------- авторизация ----------
 
 def current_user(request: Request, db: sqlite3.Connection):
     token = request.cookies.get(COOKIE)
@@ -138,7 +130,6 @@ def change_password(body: PasswordChange, request: Request, user=Depends(require
     if user["username"].lower() in new.lower():
         raise HTTPException(422, "Пароль не должен содержать логин")
     db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new), user["id"]))
-    # Остальные входы (другие браузеры и устройства) завершаем, текущий оставляем.
     db.execute("DELETE FROM sessions WHERE user_id = ? AND token_hash != ?",
                (user["id"], hash_token(request.cookies.get(COOKIE, ""))))
     return {"ok": True}
@@ -169,7 +160,6 @@ def change_username(body: UsernameChange, user=Depends(require_user), db=Depends
     return {"username": new}
 
 
-# ---------- папки ----------
 
 def normalize_domain(raw: str) -> str:
     d = raw.strip().lower()
@@ -187,7 +177,6 @@ def normalize_domain(raw: str) -> str:
 
 
 def display_domain(d: str) -> str:
-    """xn--80aswg.md → сайт.md для показа людям; хранится и уходит в CSP punycode."""
     try:
         return d.encode("ascii").decode("idna")
     except UnicodeError:
@@ -195,7 +184,6 @@ def display_domain(d: str) -> str:
 
 
 def frame_ancestors(domains: list[str]) -> str:
-    """Сайты, которым разрешено показывать документ в iframe: домен и www-вариант, http и https."""
     sources = ["'self'"]
     for d in domains:
         for host in (d, "www." + d):
@@ -321,7 +309,6 @@ def delete_folder(folder_id: int, force: bool = Query(False, description="Уда
     return {"ok": True}
 
 
-# ---------- файлы ----------
 
 def file_path(folder_id: int, file_id: str) -> Path:
     return FILES_DIR / str(folder_id) / f"{file_id}.pdf"
@@ -371,7 +358,6 @@ def check_quota(db, folder, extra: int, minus: int = 0) -> None:
 
 
 def stage_upload(upload: UploadFile, folder_id: int) -> tuple[Path, int, str]:
-    """Копирует загрузку во временный файл рядом с итоговым местом; возвращает (путь, размер, sha256)."""
     head = upload.file.read(1024)
     if b"%PDF-" not in head:
         raise HTTPException(415, "Это не PDF-файл")
@@ -445,7 +431,6 @@ def read_file(file_id: str, user=Depends(require_user), db=Depends(get_db)):
 def replace_file(file_id: str, file: UploadFile = File(...),
                  name: str | None = Form(None, description="Новое имя; по умолчанию прежнее"),
                  user=Depends(require_user), db=Depends(get_db)):
-    """Заменить содержимое файла. Ссылка и iframe на сайтах остаются прежними."""
     row = get_file(db, file_id)
     folder = get_folder(db, row["folder_id"])
     tmp, size, sha = stage_upload(file, folder["id"])
@@ -479,7 +464,6 @@ def delete_file(file_id: str, user=Depends(require_user), db=Depends(get_db)):
     return {"ok": True}
 
 
-# ---------- публичная часть: просмотр в iframe ----------
 
 def message_page(status: int, text: str, lang: str = "ru") -> HTMLResponse:
     body = (f'<!doctype html><html lang="{lang}"><meta charset="utf-8">'
@@ -505,9 +489,6 @@ def viewer_template() -> str:
     global _viewer_template
     if _viewer_template is None:
         page = (PDFJS_DIR / "web" / "viewer.html").read_text(encoding="utf-8")
-        # Страница отдаётся по /v/<id>, а ресурсы PDF.js лежат в /pdfjs/web/.
-        # viewer.html задаёт свой CSP без inline-скриптов, поэтому настройка — отдельными файлами
-        # (static/viewer-setup.js сам берёт id из адреса страницы).
         _viewer_template = page.replace("<head>", '<head>\n<base href="/pdfjs/web/">\n'
                                         '<script src="/static/viewer-setup.js"></script>\n'
                                         '<link rel="stylesheet" href="/static/viewer-setup.css">', 1)
@@ -537,7 +518,6 @@ def view(file_id: str, request: Request, db=Depends(get_db)):
 
 @app.get("/f/{file_id}", include_in_schema=False)
 def file_content(file_id: str, request: Request, db=Depends(get_db)):
-    """Сам PDF. Отдаётся только просмотрщику своей страницы /v/<id> (или вошедшему администратору)."""
     row = db.execute("SELECT id, folder_id, name FROM files WHERE id = ?", (file_id,)).fetchone()
     if row is None:
         raise HTTPException(404)
@@ -558,7 +538,6 @@ def file_content(file_id: str, request: Request, db=Depends(get_db)):
     })
 
 
-# ---------- просмотр файлов из Odoo (ничего не хранится) ----------
 
 def _render_headers(extra_csp: str = "") -> dict:
     ancestors = " ".join(["'self'", *render.ODOO_ORIGINS])
@@ -573,17 +552,11 @@ def _render_headers(extra_csp: str = "") -> dict:
 
 @app.post("/api/render", tags=["render"])
 async def render_create(request: Request):
-    """Принять файл от Odoo и выдать одноразовую ссылку на просмотр.
-
-    Тело запроса — содержимое файла, имя — в заголовке X-Filename (URL-кодированное), чтобы не попадать
-    в логи nginx. Тело читается сразу в память, не через multipart: тот складывает большие файлы на диск.
-    """
     auth = request.headers.get("authorization", "")
     if not render.RENDER_TOKEN or not hmac.compare_digest(auth.encode(), f"Bearer {render.RENDER_TOKEN}".encode()):
         raise HTTPException(401, "Неверный ключ")
     raw_name = request.headers.get("x-filename", "")
     try:
-        # Если имя прислали без URL-кодирования, сервер прочитал UTF-8 как latin-1 — возвращаем как было.
         raw_name = raw_name.encode("latin-1").decode("utf-8")
     except UnicodeError:
         pass
@@ -597,7 +570,6 @@ async def render_create(request: Request):
         data += chunk
         if len(data) > render.MAX_INPUT:
             raise HTTPException(413, "Файл слишком большой для просмотра")
-    # Язык пользователя Odoo (например ro_RO) — для сообщений об ошибках внутри просмотра.
     lang = texts.normalize_lang(request.headers.get("x-lang")) or "en"
     ticket = render.create_ticket(name, bytes(data), lang)
     return {"view_url": f"{PUBLIC_URL}/r/{ticket}", "expires_in": render.TTL}
@@ -608,15 +580,12 @@ def render_view(ticket: str, request: Request):
     t = render.get_ticket(ticket)
     if t is None:
         return localized_page(410, "expired", browser_lang(request))
-    # Конвертируем сразу (результат кэшируется для /file): при ошибке показываем понятное сообщение,
-    # а не ошибку загрузки PDF.js.
     try:
         page = render.convert(t)
     except render.ConversionError as e:
         return localized_page(422, str(e), t.lang)
     if t.kind == "pdf":
         return HTMLResponse(viewer_template(), headers=_render_headers())
-    # Таблица — это HTML из чужого файла: скрипты только наши, внешних загрузок нет.
     csp = ("; default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src data:; "
            "base-uri 'none'; form-action 'none'")
     return HTMLResponse(page, headers=_render_headers(csp))

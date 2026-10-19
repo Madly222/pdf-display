@@ -1,4 +1,3 @@
-"""Администрирование с сервера: sudo pdfdisplay-admin set-password admin"""
 import argparse
 import getpass
 import re
@@ -54,7 +53,6 @@ def main() -> None:
         row = db.execute("SELECT id FROM users WHERE username = ?", (args.username,)).fetchone()
         if row:
             db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(password), row["id"]))
-            # Смена пароля завершает все открытые входы этого пользователя.
             db.execute("DELETE FROM sessions WHERE user_id = ?", (row["id"],))
             print(f"Пароль пользователя {args.username} изменён")
         else:

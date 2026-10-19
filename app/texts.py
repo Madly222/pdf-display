@@ -1,5 +1,3 @@
-"""Тексты страниц, которые видят посетители сайтов и сотрудники в Odoo: английский, румынский, русский."""
-
 LANGS = ("en", "ro", "ru")
 
 MESSAGES = {
@@ -37,7 +35,6 @@ MESSAGES = {
 
 
 def normalize_lang(code: str | None) -> str | None:
-    """'ro_RO', 'ro-RO', 'ro' → 'ro'; неизвестный язык → None."""
     if not code:
         return None
     short = code.replace("-", "_").split("_")[0].strip().lower()
@@ -45,7 +42,6 @@ def normalize_lang(code: str | None) -> str | None:
 
 
 def lang_from_header(accept_language: str | None) -> str:
-    """Первый поддерживаемый язык из Accept-Language браузера, иначе английский."""
     for part in (accept_language or "").split(","):
         lang = normalize_lang(part.split(";")[0])
         if lang:

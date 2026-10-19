@@ -1,4 +1,3 @@
-/* Просмотр таблиц (Excel, OpenOffice, CSV): листы во вкладках снизу, как в Excel. */
 html, body { margin: 0; height: 100%; }
 body {
   display: flex; flex-direction: column;
@@ -23,7 +22,6 @@ body {
 .sv-sheet font { font-size: inherit; }
 .sv-sheet img { max-width: none; }
 .sv-sheet a { color: #2f6feb; }
-/* Примечания к ячейкам: красный уголок, текст по наведению. */
 .sv-sheet a.comment-indicator { display: inline-block; width: 6px; height: 6px; background: #d33a3a; vertical-align: top; }
 .sv-sheet comment { display: none; }
 .sv-sheet a.comment-indicator:hover + comment {

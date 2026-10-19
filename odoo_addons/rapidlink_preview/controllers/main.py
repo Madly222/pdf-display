@@ -18,7 +18,6 @@ class RapidlinkPreview(http.Controller):
 
     @http.route('/rapidlink_preview/view/<int:attachment_id>', type='http', auth='user', methods=['GET'])
     def view(self, attachment_id, **kwargs):
-        """Opened inside the file viewer iframe: send the file to the render service, redirect to its view."""
         _ = request.env._
         attachment = request.env['ir.attachment'].browse(attachment_id).exists()
         try:
@@ -45,7 +44,6 @@ class RapidlinkPreview(http.Controller):
                     'Authorization': f'Bearer {secret}',
                     'Content-Type': 'application/octet-stream',
                     'X-Filename': quote(attachment.name or 'file'),
-                    # Язык пользователя: сервис просмотра покажет свои сообщения на нём же.
                     'X-Lang': request.env.lang or 'en_US',
                 },
                 timeout=TIMEOUT,

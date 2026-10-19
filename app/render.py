@@ -1,9 +1,3 @@
-"""Просмотр файлов из Odoo: офисные документы конвертируются на лету, ничего не пишется на диск.
-
-Odoo присылает файл (POST /api/render) и получает одноразовую ссылку /r/<ticket>, живущую TTL секунд.
-Исходник и результат конвертации лежат только в оперативной памяти; LibreOffice работает в /dev/shm
-(tmpfs), рабочий каталог удаляется сразу после конвертации.
-"""
 import base64
 import csv
 import hashlib
@@ -22,7 +16,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 RENDER_TOKEN = os.environ.get("PD_RENDER_TOKEN", "")
-# Сайты (Odoo), которым можно встраивать просмотр в iframe.
 ODOO_ORIGINS = os.environ.get("PD_ODOO_ORIGINS", "").split()
 TTL = 300
 MAX_INPUT = 100 * 1024 * 1024
@@ -31,7 +24,6 @@ CONVERT_TIMEOUT = 120
 WORK_ROOT = Path("/dev/shm/pdfdisplay")
 LO_PROFILE = WORK_ROOT / "lo-profile"
 
-# Что показываем как PDF (через LibreOffice) и что как таблицу.
 PDF_EXT = {"doc", "docx", "docm", "dot", "dotx", "odt", "ott", "rtf", "wpd", "wps",
            "ppt", "pptx", "pptm", "pps", "ppsx", "pot", "potx", "odp", "otp", "odg", "vsd", "vsdx"}
 SHEET_EXT = {"xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "ods", "ots"}
@@ -39,13 +31,13 @@ CSV_EXT = {"csv"}
 
 
 class ConversionError(Exception):
-    """Текст исключения — ключ сообщения из texts.MESSAGES."""
+    pass
 
 
 @dataclass
 class Ticket:
     name: str
-    kind: str  # "pdf" | "sheet" | "csv"
+    kind: str
     ext: str
     data: bytes
     sha: str
@@ -56,7 +48,6 @@ class Ticket:
 _tickets: dict[str, Ticket] = {}
 _results: dict[tuple[str, str], tuple[bytes, float]] = {}
 _lock = threading.Lock()
-# Один LibreOffice за раз: на сервере одно ядро, параллельные конвертации только мешают друг другу.
 _convert_lock = threading.Lock()
 
 
@@ -78,7 +69,6 @@ def _purge() -> None:
             del _tickets[key]
         for key in [k for k, (_, exp) in _results.items() if exp < now]:
             del _results[key]
-        # Если кэш разросся, выкидываем самые старые результаты.
         total = sum(len(v) for v, _ in _results.values())
         for key, (value, _) in sorted(_results.items(), key=lambda kv: kv[1][1]):
             if total <= MAX_CACHE:
@@ -107,7 +97,6 @@ def get_ticket(ticket: str) -> Ticket | None:
 
 
 def convert(ticket: Ticket) -> bytes:
-    """PDF для документов, готовая HTML-страница для таблиц. Результат кэшируется в памяти на TTL."""
     key = (ticket.sha, ticket.kind)
     with _lock:
         cached = _results.get(key)
@@ -155,7 +144,6 @@ def _libreoffice(ticket: Ticket) -> bytes:
         shutil.rmtree(work, ignore_errors=True)
 
 
-# ---------- таблицы ----------
 
 _SHEET_SPLIT = re.compile(r'<A NAME="table\d+">\s*<h1>Sheet \d+: <em>(.*?)</em></h1>\s*</A>', re.S | re.I)
 _IMG_SRC = re.compile(r'src="([^"/\\]+\.(png|jpe?g|gif|svg))"', re.I)
@@ -184,7 +172,6 @@ def sheet_page(title: str, lo_html: str, out_dir: Path) -> str:
     parts = _SHEET_SPLIT.split(body)
     sheets = []
     if len(parts) > 1:
-        # parts: [обзор, имя1, содержимое1, имя2, содержимое2, ...]; имена LibreOffice уже экранировал.
         for i in range(1, len(parts), 2):
             content = re.sub(r"(\s*<hr>\s*)+$", "", parts[i + 1].strip(), flags=re.I)
             sheets.append((parts[i], content))

@@ -5,7 +5,6 @@ from conftest import PASSWORD, PDF_BYTES
 import main
 
 
-# ---------- чистые функции ----------
 
 def test_normalize_domain():
     assert main.normalize_domain("https://WWW.Example.com/page?x=1") == "example.com"
@@ -49,7 +48,6 @@ def test_csv_page_escapes_and_detects_delimiter():
     assert "<td>&lt;b&gt;a&lt;/b&gt;</td><td>1</td>" in page
 
 
-# ---------- вход и пароли ----------
 
 def test_api_requires_login(client):
     assert client.get("/api/folders").status_code == 401
@@ -72,7 +70,6 @@ def test_username_rules(admin):
     assert r.status_code == 422
 
 
-# ---------- папки, загрузка и защита встраивания ----------
 
 def test_upload_and_embed_protection(admin):
     folder = admin.post("/api/folders", json={"name": "client.example.com", "quota_gb": 0.001}).json()
@@ -87,17 +84,13 @@ def test_upload_and_embed_protection(admin):
     assert up.json()["embed_html"].startswith('<iframe src="https://testserver/v/')
     admin.post("/api/logout")
 
-    # В iframe страница отдаётся с frame-ancestors для доменов папки.
     framed = admin.get(f"/v/{file_id}", headers={"sec-fetch-dest": "iframe"})
     assert framed.status_code == 200
     assert "https://client.example.com" in framed.headers["content-security-policy"]
 
-    # Прямое открытие ссылки посетителем запрещено.
     assert admin.get(f"/v/{file_id}", headers={"sec-fetch-dest": "document"}).status_code == 403
-    # Подмена файла через параметр ?file= запрещена.
     assert admin.get(f"/v/{file_id}?file=/f/other").status_code == 400
 
-    # Сам PDF отдаётся только своему просмотрщику.
     own = {"sec-fetch-site": "same-origin", "referer": f"https://testserver/v/{file_id}"}
     ok = admin.get(f"/f/{file_id}", headers=own)
     assert ok.status_code == 200 and ok.headers["x-accel-redirect"].endswith(f"{file_id}.pdf")
@@ -106,7 +99,6 @@ def test_upload_and_embed_protection(admin):
                                                "referer": "https://testserver/v/other"}).status_code == 403
 
 
-# ---------- просмотр файлов из Odoo ----------
 
 def test_render_requires_key(client):
     r = client.post("/api/render", content=b"a,b", headers={"x-filename": "t.csv"})

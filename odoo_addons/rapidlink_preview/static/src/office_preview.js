@@ -2,7 +2,6 @@ import { Attachment } from "@mail/core/common/attachment_model";
 import { FileModel } from "@web/core/file_viewer/file_model";
 import { patch } from "@web/core/utils/patch";
 
-// Office files are shown through the render service (see controllers/main.py).
 const SHEET_EXT = new Set(["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "ods", "ots", "csv"]);
 const DOC_EXT = new Set([
     "doc", "docx", "docm", "dot", "dotx", "odt", "ott", "rtf", "wpd", "wps",

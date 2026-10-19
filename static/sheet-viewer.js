@@ -1,4 +1,3 @@
-// Переключение листов таблицы.
 (function () {
   var tabs = document.querySelectorAll(".sv-tab");
   var sheets = document.querySelectorAll(".sv-sheet");

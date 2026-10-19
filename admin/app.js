@@ -1,13 +1,9 @@
 "use strict";
 
-// Админка PDF Display. Без сборки и библиотек: всё DOM-ом, данные вставляются только как текст.
-
 const MIN_PASSWORD = 10;
 const MAX_FILE = 2 * 1024 ** 3;
 const $app = document.getElementById("app");
 const state = { user: null };
-
-// ---------- иконки ----------
 
 const ICONS = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -33,12 +29,9 @@ const ICONS = {
 function icon(name) {
   const span = document.createElement("span");
   span.style.display = "contents";
-  // Разметка иконок — константы выше, пользовательских данных в ней нет.
   span.innerHTML = `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
   return span.firstChild;
 }
-
-// ---------- DOM ----------
 
 function h(tag, attrs, ...children) {
   const el = document.createElement(tag);
@@ -60,8 +53,6 @@ function mount(...nodes) {
   $app.replaceChildren(...nodes);
 }
 
-// ---------- форматирование ----------
-
 function fmtSize(n) {
   if (n == null) return "";
   if (n < 1024) return `${n} Б`;
@@ -80,8 +71,6 @@ function plural(n, one, few, many) {
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
 }
-
-// ---------- API ----------
 
 class ApiError extends Error {
   constructor(message, status) {
@@ -136,15 +125,12 @@ function uploadRequest(method, path, file, onProgress) {
   });
 }
 
-// ---------- уведомления и диалоги ----------
-
 function toast(message, kind) {
   const el = h("div", { class: "toast" + (kind === "err" ? " err" : "") }, message);
   document.getElementById("toasts").append(el);
   setTimeout(() => el.remove(), kind === "err" ? 6000 : 2600);
 }
 
-// Запасной способ для браузеров, где Clipboard API недоступен или запрещён.
 function copyFallback(text) {
   const area = h("textarea", { readonly: true });
   area.value = text;
@@ -198,7 +184,6 @@ function confirmDialog(title, text, { okText = "Удалить", danger = true }
   });
 }
 
-// Диалог с формой: onSubmit бросает ошибку — она показывается в диалоге, иначе диалог закрывается.
 function formDialog({ title, fields, submitText = "Сохранить", onSubmit }) {
   const error = h("p", { class: "form-error" });
   const submit = h("button", { class: "btn primary", type: "submit" }, submitText);
@@ -206,7 +191,6 @@ function formDialog({ title, fields, submitText = "Сохранить", onSubmit
     h("div", { class: "dialog-foot", style: null },
       h("button", { class: "btn", type: "button", onclick: () => dialog.close() }, "Отмена"), submit));
   const dialog = openDialog({ title, body: form });
-  // Подвал формы должен стоять вровень с подвалом диалога, а не внутри отступов тела.
   form.lastChild.style.margin = "18px -20px -18px";
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -230,8 +214,6 @@ function field(label, input, hint) {
   return h("div", { class: "field" }, h("label", {}, label), input, hint ? h("div", { class: "hint" }, hint) : null);
 }
 
-// ---------- тема ----------
-
 function currentTheme() {
   return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
@@ -240,8 +222,6 @@ function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   try { localStorage.setItem("pd-theme", theme); } catch {}
 }
-
-// ---------- каркас ----------
 
 function shell(active, ...content) {
   const themeBtn = h("button", {
@@ -275,8 +255,6 @@ async function logout() {
   renderLogin();
 }
 
-// ---------- вход ----------
-
 function renderLogin() {
   document.title = "Вход — PDF Display";
   const error = h("p", { class: "form-error" });
@@ -308,8 +286,6 @@ function renderLogin() {
   mount(h("div", { class: "login-wrap" }, form));
   username.focus();
 }
-
-// ---------- папки ----------
 
 function usageBlock(folder) {
   const quota = folder.quota_bytes;
@@ -362,7 +338,6 @@ function folderDialog(folder) {
   const direct = h("input", { type: "checkbox", name: "direct" });
   direct.checked = folder ? folder.allow_direct : false;
 
-  // Новая папка: пока домены не трогали руками, подставляем в них имя папки.
   let domainsTouched = editing;
   domains.addEventListener("input", () => { domainsTouched = true; });
   name.addEventListener("input", () => { if (!domainsTouched) domains.value = name.value.trim(); });
@@ -412,8 +387,6 @@ async function deleteFolder(folder) {
     toast(err.message, "err");
   }
 }
-
-// ---------- одна папка ----------
 
 async function renderFolder(folderId) {
   const [folder, files] = await Promise.all([api("GET", `/folders/${folderId}`), api("GET", `/files?folder_id=${folderId}`)]);
@@ -585,11 +558,9 @@ async function deleteFile(file, folderId) {
   }
 }
 
-// ---------- настройки ----------
-
 function generatePassword(length = 20) {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*-_=+?";
-  const limit = 256 - (256 % alphabet.length); // без перекоса распределения
+  const limit = 256 - (256 % alphabet.length);
   let out = "";
   while (out.length < length) {
     for (const b of crypto.getRandomValues(new Uint8Array(length * 2))) {
@@ -732,8 +703,6 @@ function renderSettings() {
         themeButtons,
         h("p", { class: "muted small" }, "Сохраняется только в этом браузере на этом устройстве. Другие пользователи и устройства не затрагиваются.")))));
 }
-
-// ---------- маршруты ----------
 
 async function route() {
   if (!state.user) {

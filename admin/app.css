@@ -1,4 +1,3 @@
-/* ---------- темы ---------- */
 :root,
 [data-theme="light"] {
   --bg: #f4f5f7;
@@ -46,7 +45,6 @@
   color-scheme: dark;
 }
 
-/* ---------- основа ---------- */
 * { box-sizing: border-box; }
 
 html, body { margin: 0; }
@@ -71,7 +69,6 @@ h2 { font-size: 17px; font-weight: 600; }
 
 svg.icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ---------- верхняя панель ---------- */
 .topbar {
   position: sticky; top: 0; z-index: 10;
   background: var(--surface);
@@ -96,7 +93,6 @@ svg.icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: no
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .user-name { color: var(--muted); font-size: 14px; }
 
-/* ---------- раскладка ---------- */
 .container { max-width: 1120px; margin: 0 auto; padding: 28px 20px 60px; }
 .page-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
 .page-head .spacer { flex: 1; }
@@ -109,7 +105,6 @@ svg.icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: no
 .card + .card { margin-top: 16px; }
 .card h2 { margin-bottom: 14px; }
 
-/* ---------- кнопки ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   height: 36px; padding: 0 14px; border-radius: 8px;
@@ -129,7 +124,6 @@ svg.icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: no
 .btn.icon-only { width: 34px; height: 34px; padding: 0; }
 .btn.sm { height: 30px; padding: 0 10px; font-size: 13px; }
 
-/* ---------- формы ---------- */
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-size: 14px; font-weight: 500; }
 .field .hint { font-size: 13px; color: var(--muted); }
@@ -152,13 +146,11 @@ textarea.input { height: auto; min-height: 80px; padding: 8px 12px; resize: vert
 }
 .notice svg.icon { margin-top: 2px; }
 
-/* ---------- вход ---------- */
 .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
 .login-card { width: 100%; max-width: 380px; }
 .login-card .brand { justify-content: center; margin-bottom: 22px; font-size: 18px; }
 .login-card .btn { width: 100%; height: 40px; }
 
-/* ---------- папки ---------- */
 .folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 .folder-card { display: block; color: var(--text); transition: border-color 0.12s, transform 0.12s; }
 .folder-card:hover { border-color: var(--accent); text-decoration: none; }
@@ -183,7 +175,6 @@ textarea.input { height: auto; min-height: 80px; padding: 8px 12px; resize: vert
 .folder-head .usage { max-width: 420px; }
 .folder-head .actions { display: flex; gap: 8px; }
 
-/* ---------- загрузка ---------- */
 .dropzone {
   margin-top: 16px; border: 2px dashed var(--border); border-radius: 12px; padding: 26px 16px;
   text-align: center; color: var(--muted); cursor: pointer; transition: border-color 0.12s, background 0.12s;
@@ -201,7 +192,6 @@ textarea.input { height: auto; min-height: 80px; padding: 8px 12px; resize: vert
 .upload-row .status.err { color: var(--danger); }
 .upload-row .usage-bar { grid-column: 1 / -1; height: 4px; }
 
-/* ---------- файлы ---------- */
 .files-head { display: flex; align-items: center; gap: 12px; margin: 26px 0 12px; flex-wrap: wrap; }
 .files-head h2 { margin: 0; }
 .files-head .input { max-width: 260px; height: 34px; margin-left: auto; }
@@ -218,7 +208,6 @@ textarea.input { height: auto; min-height: 80px; padding: 8px 12px; resize: vert
 .empty { padding: 40px 20px; text-align: center; color: var(--muted); }
 .empty .icon { width: 34px; height: 34px; margin-bottom: 8px; }
 
-/* ---------- настройки ---------- */
 .settings { max-width: 640px; }
 .segmented { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
 .segmented button {
@@ -229,7 +218,6 @@ textarea.input { height: auto; min-height: 80px; padding: 8px 12px; resize: vert
 .pw-meter { height: 5px; border-radius: 99px; background: var(--bar); overflow: hidden; margin-top: 2px; }
 .pw-meter > div { height: 100%; width: 0; transition: width 0.15s, background 0.15s; }
 
-/* ---------- диалоги ---------- */
 dialog {
   width: min(520px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--border); border-radius: 14px;
   background: var(--surface); color: var(--text); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
@@ -243,7 +231,6 @@ dialog::backdrop { background: var(--backdrop); }
 .preview-frame { display: block; width: 100%; height: min(75vh, 800px); border: 0; background: var(--surface-2); }
 .code-box { width: 100%; min-height: 70px; resize: none; }
 
-/* ---------- уведомления ---------- */
 #toasts { position: fixed; right: 16px; bottom: 16px; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
 .toast {
   padding: 11px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-size: 14px;
@@ -252,7 +239,6 @@ dialog::backdrop { background: var(--backdrop); }
 .toast.err { background: var(--danger); color: #fff; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } }
 
-/* ---------- телефоны ---------- */
 @media (max-width: 720px) {
   .topbar-inner { padding: 0 12px; gap: 10px; }
   .brand span:last-child, .user-name { display: none; }
