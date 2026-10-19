@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.FileViewer" t-inherit-mode="extension">
+        <xpath expr="//i[@t-if='state.file.isVideo']" position="after">
+            <i t-if="state.file.isOfficeSheet" class="fa fa-file-excel-o" role="img" title="Spreadsheet"/>
+            <i t-elif="state.file.isOffice" class="fa fa-file-word-o" role="img" title="Document"/>
+        </xpath>
+        <xpath expr="//iframe[@t-ref='iframeViewerPdf']" position="after">
+            <iframe t-if="state.file.isOffice" t-key="state.file.id"
+                class="o-FileViewer-view border-0 h-100 bg-white"
+                t-att-class="{ 'w-100': ui.isSmall or state.file.isOfficeSheet, 'w-75': !ui.isSmall and !state.file.isOfficeSheet }"
+                t-att-src="state.file.defaultSource"/>
+        </xpath>
+    </t>
+
+</templates>

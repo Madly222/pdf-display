@@ -1,0 +1,6 @@
+#openFile,
+#secondaryOpenFile,
+#editorModeButtons,
+#editorModeSeparator {
+  display: none !important;
+}

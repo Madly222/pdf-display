@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Runtime data: database, uploaded files, temp uploads
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Secrets and local config (only *.example files are committed)
+.env
+*.env
+!*.env.example
+deploy/*.local*
+*.pem
+*.key
+
+# PDF.js is downloaded at install time (see README)
+pdfjs/
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,53 @@
+# Translation of Odoo Server.
+# 	* pdfdisplay_preview
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pdfdisplay_preview
+#. odoo-python
+#: code:addons/pdfdisplay_preview/controllers/main.py:0
+msgid "You don't have access to this file."
+msgstr "У вас нет доступа к этому файлу."
+
+#. module: pdfdisplay_preview
+#. odoo-python
+#: code:addons/pdfdisplay_preview/controllers/main.py:0
+msgid "The file is too large to preview. Download it instead."
+msgstr "Файл слишком большой для просмотра. Скачайте его."
+
+#. module: pdfdisplay_preview
+#. odoo-python
+#: code:addons/pdfdisplay_preview/controllers/main.py:0
+msgid "Preview is not configured."
+msgstr "Просмотр не настроен."
+
+#. module: pdfdisplay_preview
+#. odoo-python
+#: code:addons/pdfdisplay_preview/controllers/main.py:0
+msgid "The preview service is unavailable. Try again later or download the file."
+msgstr "Сервис просмотра недоступен. Попробуйте позже или скачайте файл."
+
+#. module: pdfdisplay_preview
+#. odoo-python
+#: code:addons/pdfdisplay_preview/controllers/main.py:0
+msgid "This file cannot be previewed. Download it instead."
+msgstr "Этот файл нельзя просмотреть. Скачайте его."
+
+#. module: pdfdisplay_preview
+#. odoo-javascript
+#: code:addons/pdfdisplay_preview/static/src/file_viewer.xml:0
+msgid "Spreadsheet"
+msgstr "Таблица"
+
+#. module: pdfdisplay_preview
+#. odoo-javascript
+#: code:addons/pdfdisplay_preview/static/src/file_viewer.xml:0
+msgid "Document"
+msgstr "Документ"

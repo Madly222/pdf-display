@@ -1,0 +1,87 @@
+# nginx site for PDF Display. Replace pdf.example.com with your domain.
+# TLS certificate: certbot (webroot /var/www/html) or any other ACME client.
+
+upstream pdfdisplay_app {
+    server 127.0.0.1:8000;
+    keepalive 16;
+}
+
+server {
+    listen 80;
+    server_name pdf.example.com;
+    location /.well-known/acme-challenge/ { root /var/www/html; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name pdf.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/pdf.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pdf.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    server_tokens off;
+    client_max_body_size 2100m;
+
+    # PDF.js static files. viewer.html is never served directly: the app serves it at /v/<id>.
+    location = /pdfjs/web/viewer.html { return 404; }
+    location /pdfjs/ {
+        alias /opt/pdfdisplay/pdfjs/;
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header X-Content-Type-Options nosniff;
+        # Debian's mime.types has no .mjs, and browsers only run modules served as JavaScript.
+        location ~ \.mjs$ {
+            types { }
+            default_type text/javascript;
+        }
+    }
+
+    # Admin UI: static files, data via /api. Must never be framed.
+    location = /admin { return 301 /admin/; }
+    location /admin/ {
+        alias /opt/pdfdisplay/admin/;
+        index index.html;
+        add_header Content-Security-Policy "default-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy same-origin always;
+        add_header X-Robots-Tag noindex always;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # Site icon for tabs and bookmarks.
+    location ~ ^/(favicon\.ico|favicon\.svg|apple-touch-icon\.png)$ {
+        root /opt/pdfdisplay/static;
+        expires 7d;
+        access_log off;
+    }
+
+    # Viewer add-ons (PDF.js setup, spreadsheet view).
+    location /static/ {
+        alias /opt/pdfdisplay/static/;
+        expires 1h;
+        add_header X-Content-Type-Options nosniff;
+    }
+
+    # Stored PDFs are served only after the app has checked access (X-Accel-Redirect).
+    location /_files/ {
+        internal;
+        alias /srv/pdfdisplay/files/;
+        add_header X-Content-Type-Options nosniff;
+    }
+
+    location / {
+        proxy_pass http://pdfdisplay_app;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_request_buffering off;
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
+    }
+}
