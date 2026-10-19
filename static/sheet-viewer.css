@@ -1,0 +1,44 @@
+/* Просмотр таблиц (Excel, OpenOffice, CSV): листы во вкладках снизу, как в Excel. */
+html, body { margin: 0; height: 100%; }
+body {
+  display: flex; flex-direction: column;
+  background: #fff; color: #1c2230;
+  font: 13px/1.35 Calibri, Carlito, "Segoe UI", Arial, sans-serif;
+}
+
+.sv-sheets { flex: 1; overflow: auto; }
+.sv-sheet { padding: 0; }
+.sv-sheet[hidden] { display: none; }
+
+.sv-sheet table { border-collapse: collapse; margin: 0; }
+.sv-sheet td, .sv-sheet th {
+  border: 1px solid #e1e3e8;
+  padding: 2px 6px;
+  font-size: 13px;
+  font-family: inherit;
+  vertical-align: bottom;
+}
+.sv-sheet td[valign="middle"] { vertical-align: middle; }
+.sv-sheet td[valign="top"] { vertical-align: top; }
+.sv-sheet font { font-size: inherit; }
+.sv-sheet img { max-width: none; }
+.sv-sheet a { color: #2f6feb; }
+/* Примечания к ячейкам: красный уголок, текст по наведению. */
+.sv-sheet a.comment-indicator { display: inline-block; width: 6px; height: 6px; background: #d33a3a; vertical-align: top; }
+.sv-sheet comment { display: none; }
+.sv-sheet a.comment-indicator:hover + comment {
+  display: block; position: absolute; z-index: 5; max-width: 320px; padding: 6px 8px;
+  background: #fffbe6; border: 1px solid #e0c56b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sv-tabs {
+  flex: none; display: flex; gap: 2px; overflow-x: auto;
+  padding: 0 8px; border-top: 1px solid #d5d9e0; background: #f3f4f6;
+}
+body.single .sv-tabs { display: none; }
+.sv-tab {
+  flex: none; height: 32px; padding: 0 14px; border: 0; border-bottom: 3px solid transparent;
+  background: transparent; color: #4b5563; font: inherit; cursor: pointer; white-space: nowrap;
+}
+.sv-tab:hover { background: #e7e9ed; }
+.sv-tab.active { background: #fff; color: #1f7a3f; border-bottom-color: #1f7a3f; font-weight: 600; }

@@ -1,0 +1,7 @@
+/* Прячем открытие локальных файлов и инструменты редактирования: это просмотр, не редактор. */
+#openFile,
+#secondaryOpenFile,
+#editorModeButtons,
+#editorModeSeparator {
+  display: none !important;
+}

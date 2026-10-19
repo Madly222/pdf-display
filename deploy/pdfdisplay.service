@@ -1,0 +1,26 @@
+[Unit]
+Description=PDF Display - embeddable document viewer
+After=network.target
+
+[Service]
+User=pdfdisplay
+Group=pdfdisplay
+WorkingDirectory=/opt/pdfdisplay/app
+Environment=PD_DATA_DIR=/srv/pdfdisplay
+Environment=PD_MAX_FILE_MB=2048
+Environment=TMPDIR=/srv/pdfdisplay/tmp
+# PD_PUBLIC_URL, PD_RENDER_TOKEN, PD_ODOO_ORIGINS: see pdfdisplay.env.example
+EnvironmentFile=/etc/pdfdisplay/pdfdisplay.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-server-header
+Restart=on-failure
+RestartSec=2
+# Files are created with group www-data (setgid on the files directory) so nginx can read them.
+UMask=0027
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/pdfdisplay
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+# Same versions as Debian 13 packages (python3-fastapi, python3-uvicorn, python3-multipart, python3-pydantic)
+fastapi>=0.115,<0.116
+uvicorn>=0.32
+python-multipart>=0.0.18
+pydantic>=2.10,<3
