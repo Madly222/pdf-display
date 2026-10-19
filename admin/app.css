@@ -103,6 +103,7 @@ svg.icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: no
   box-shadow: var(--shadow); padding: 20px;
 }
 .card + .card { margin-top: 16px; }
+.folders > .card + .card { margin-top: 0; }
 .card h2 { margin-bottom: 14px; }
 
 .btn {

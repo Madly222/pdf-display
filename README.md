@@ -11,6 +11,30 @@ Two jobs, one small service:
 
 In production at an ISP: client sites embed price lists and contracts, and staff preview office attachments right in the Odoo chatter.
 
+<p align="center">
+  <img src="docs/screenshots/06-client-site.png" alt="A PDF embedded on a client website" width="100%">
+</p>
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Excel preview inside Odoo](docs/screenshots/08-odoo-preview.png) | ![Spreadsheet view with sheet tabs](docs/screenshots/07-spreadsheet.png) |
+| **Odoo 18:** an `.xlsx` attachment opened in the standard file viewer, converted on the fly | **Spreadsheet view:** formulas, number formats, colours and sheet tabs preserved |
+| ![Client folders](docs/screenshots/01-folders.png) | ![Folder with files](docs/screenshots/02-folder.png) |
+| **Folders:** allowed websites, quota usage, warning when nothing may embed | **Files:** drag-and-drop upload, iframe code, preview, replace, rename |
+| ![Iframe code dialog](docs/screenshots/03-embed-code.png) | ![Dark theme](docs/screenshots/04-folders-dark.png) |
+| **Embed code:** permanent link and a ready `<iframe>` snippet | **Dark theme**, remembered per browser |
+
+<details>
+<summary>Settings: login, password generator, theme</summary>
+
+![Settings in dark theme](docs/screenshots/05-settings-dark.png)
+
+</details>
+
+All screenshots use made-up demo data.
+
 ---
 
 ## Table of contents
@@ -126,7 +150,10 @@ pdf-display/
 ├── odoo_addons/
 │   └── rapidlink_preview/   # Odoo 18 module: Office preview in the attachment viewer
 ├── deploy/            # nginx site, systemd unit, environment example
-├── scripts/make_icons.py    # renders favicon.ico / apple-touch-icon.png without dependencies
+├── scripts/
+│   ├── dev_server.py        # local run without nginx
+│   └── make_icons.py        # renders favicon.ico / apple-touch-icon.png without dependencies
+├── docs/screenshots/
 └── tests/             # pytest: access control, embedding rules, render tickets, i18n
 ```
 
@@ -205,6 +232,21 @@ Interactive OpenAPI docs are served at `/api/docs`. Log in through `POST /api/lo
 | `POST` | `/api/render` | Odoo → one-time preview link (Bearer key, raw body, `X-Filename`, `X-Lang`) |
 
 Public, non-API routes: `/v/{id}` (embeddable viewer), `/f/{id}` (file, viewer-only), `/r/{ticket}` (Odoo preview).
+
+## Running locally
+
+`scripts/dev_server.py` starts the app without nginx: it serves the admin UI and static files and resolves `X-Accel-Redirect` itself. The Odoo preview needs LibreOffice and `/dev/shm`, so it only works on Linux.
+
+```bash
+pip install -r requirements.txt
+curl -sSLo pdfjs.zip https://github.com/mozilla/pdf.js/releases/download/v6.4.299/pdfjs-6.4.299-legacy-dist.zip
+mkdir pdfjs && unzip -q pdfjs.zip -d pdfjs
+mkdir -p data/db data/files data/tmp
+PD_DATA_DIR=./data python app/cli.py set-password admin
+python scripts/dev_server.py
+```
+
+Then open http://localhost:8000/admin/.
 
 ## Testing
 
