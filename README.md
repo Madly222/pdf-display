@@ -39,7 +39,7 @@ All screenshots use made-up demo data.
 
 ## Table of contents
 
-- [Features](#features)
+- [What it does](#what-it-does)
 - [Architecture](#architecture)
 - [Security design](#security-design)
 - [Tech stack](#tech-stack)
@@ -47,10 +47,11 @@ All screenshots use made-up demo data.
 - [Installation](#installation)
 - [Odoo integration](#odoo-integration)
 - [REST API](#rest-api)
-- [Testing](#testing)
+- [Running locally](#running-locally)
+- [Tests](#tests)
 - [License](#license)
 
-## Features
+## What it does
 
 **Embedding for client websites**
 - Folders per client: allowed websites (the `www.` variant and http/https are added automatically, IDN domains supported) and a storage quota.
@@ -248,7 +249,7 @@ python scripts/dev_server.py
 
 Then open http://localhost:8000/admin/.
 
-## Testing
+## Tests
 
 ```bash
 python -m venv .venv && . .venv/bin/activate
